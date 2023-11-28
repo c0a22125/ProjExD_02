@@ -5,6 +5,13 @@ import pygame as pg
 
 WIDTH, HEIGHT = 1600, 900
 
+delta = {  # 練習３：押下キーと移動量の辞書
+    pg.K_UP: (0, -5),  # キー：移動量／値：（横方向移動量，縦方向移動量）
+    pg.K_DOWN: (0, +5),
+    pg.K_LEFT: (-5, 0),
+    pg.K_RIGHT: (+5, 0)
+}
+
 
 def main():
     pg.display.set_caption("逃げろ！こうかとん")  # ウィンドウタイトルを「逃げろ！こうかとん」
@@ -12,22 +19,36 @@ def main():
     bg_img = pg.image.load("ex02/fig/pg_bg.jpg")  # 背景画像pg_bg.jpgのSurfaceを生成
     kk_img = pg.image.load("ex02/fig/3.png")  # こうかとん画像3.pngをロード
     kk_img = pg.transform.rotozoom(kk_img, 0, 2.0)  # 2倍に拡大したSurfaceを生成
+    kk_rct = kk_img.get_rect()  # 練習３：こうかとんSurfaceのRectを抽出する
+    kk_rct.center = 900, 400  # 練習３：こうかとんの初期座標
     bb_img = pg.Surface((20, 20))  # 練習:1 透明のsurfaceを生成
-    bb_img.set_colorkey((0, 0, 0))
+    bb_img.set_colorkey((0, 0, 0))  # 背景を透明にする
     pg.draw.circle(bb_img, (255, 0, 0), (10, 10), 10)  # 半径10の赤い円を生成
     bb_rct = bb_img.get_rect()  # 練習2:爆弾surfaceのRectを抽出
     bb_rct.centerx = random.randint(0, WIDTH)  # 座標の設定
     bb_rct.centery = random.randint(0, HEIGHT)
     clock = pg.time.Clock()
     tmr = 0
+    vx = 5
+    vy = 5
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT: 
                 return
+            
+        key_lst = pg.key.get_pressed()
+        sum_mv = [0, 0]
+        for k, tpl in delta.items():
+            if key_lst[k]:  # キーが押されたら
+                sum_mv[0] += tpl[0]
+                sum_mv[1] += tpl[1]
 
         screen.blit(bg_img, [0, 0])  # 背景画像をスクリーンSurfaceに貼り付ける
-        screen.blit(kk_img, [900, 400])  # こうかとん画像をスクリーンSurfaceの横900，縦400に貼り付ける
-        screen.blit(bb_img, bb_rct)
+        kk_rct.move_ip(sum_mv[0], sum_mv[1])
+        screen.blit(kk_img, kk_rct)  # 練習３：こうかとんを移動させる
+        screen.blit(kk_img, kk_rct)  # こうかとん画像をスクリーンSurfaceの横900，縦400に貼り付ける
+        bb_rct.move_ip(vx, vy)  # 赤い円が移動
+        screen.blit(bb_img, bb_rct)  # 赤い円を表示
         pg.display.update()  # 画面を更新する
         tmr += 1
         clock.tick(50)
