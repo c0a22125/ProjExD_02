@@ -43,7 +43,7 @@ def main():
     bb_rct.centery = random.randint(0, HEIGHT)
     clock = pg.time.Clock()
     tmr = 0
-    vx, vy = 5, 5
+    vx , vy = 5, 5
 
     # 各方向に対するこうかとんの画像を作成
     kk_imgs = {
@@ -57,14 +57,25 @@ def main():
         (5, 5): pg.transform.flip(pg.transform.rotozoom(kk_img, 45, 1.0), True, False), # 左上斜め
     }
 
+    accs = [a for a in range(1, 11)]  # 加速度のリスト
+
+    bb_imgs = []
+    bb_rcts = []
+    for r in range(1, 11):
+        bb_img = pg.Surface((20*r, 20*r))
+        pg.draw.circle(bb_img, (255, 0, 0), (10*r, 10*r), 10*r)
+        bb_img.set_colorkey((0, 0, 0))
+        bb_imgs.append(bb_img)
+        bb_rcts.append(bb_img.get_rect())
+
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT: 
                 return
             
-        if kk_rct.colliderect(bb_rct):
-            print("Game Over")
-            return
+#        if kk_rct.colliderect(bb_rct):
+#            print("Game Over")
+#            return
             
         key_lst = pg.key.get_pressed()
         sum_mv = [0, 0]
@@ -78,14 +89,16 @@ def main():
         if check_bound(kk_rct) != (True, True):
             kk_rct.move_ip(-sum_mv[0], -sum_mv[1])
         screen.blit(kk_imgs.get((sum_mv[0], sum_mv[1]), kk_img), kk_rct.topleft)  # 押したキーに応じて向きを変えて移動
-        bb_rct.move_ip(vx, vy)  # 赤い円が移動
+        avx, avy = vx*accs[min(tmr//500, 9)], vy*accs[min(tmr//500, 9)]  # 爆弾の速度を更新
+        bb_rct.move_ip(avx, avy)  # 爆弾の速度の変更を適応
         yoko, tate = check_bound(bb_rct)
         if not yoko:  # 横がはみ出たら
             vx *= -1
         if not tate:  # 縦がはみ出たら
             vy *= -1
         
-        screen.blit(bb_img, bb_rct)  # 赤い円を表示
+        bb_img = bb_imgs[min(tmr//500, 9)]  # 爆弾のサイズを更新
+        screen.blit(bb_img, bb_rct)  # 爆弾を表示
         pg.display.update()  # 画面を更新する
         tmr += 1
         clock.tick(50)
