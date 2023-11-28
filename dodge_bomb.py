@@ -67,7 +67,7 @@ def main():
 
     bb_imgs = []
     bb_rcts = []
-    for r in range(1, 11):
+    for r in range(1, 11):  # 爆弾の大きさを大きくする
         bb_img = pg.Surface((20*r, 20*r))
         pg.draw.circle(bb_img, (255, 0, 0), (10*r, 10*r), 10*r)
         bb_img.set_colorkey((0, 0, 0))
@@ -90,9 +90,6 @@ def main():
             pg.time.delay(2000)
             return
             
-            
-
-            
         key_lst = pg.key.get_pressed()
         sum_mv = [0, 0]
         for k, tpl in delta.items():
@@ -108,7 +105,7 @@ def main():
         avx, avy = vx*accs[min(tmr//500, 9)], vy*accs[min(tmr//500, 9)]  # 爆弾の速度を更新
         bb_rct.move_ip(avx, avy)  # 爆弾の速度の変更を適応
         yoko, tate = check_bound(bb_rct)
-        if not yoko:  # 横がはみ出たら
+        if yoko == False:  # 横がはみ出たら
             vx *= -1
         if not tate:  # 縦がはみ出たら
             vy *= -1
