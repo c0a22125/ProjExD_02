@@ -12,6 +12,19 @@ delta = {  # 練習３：押下キーと移動量の辞書
     pg.K_RIGHT: (+5, 0)
 }
 
+def check_bound(rct: pg.Rect) -> tuple[bool, bool]:
+    """
+    オブジェクトが画面内or画面外を判定し、真理値タプルを返す関数
+    引数 rct：こうかとんor爆弾SurfaceのRect
+    戻り値：横方向、縦方向判定結果（画面内：True/画面外：False）
+    """
+    yoko , tate = True, True
+    if rct.left < 0 or WIDTH < rct.right:  # 横方向の判定
+        yoko = False
+    if rct.top < 0 or HEIGHT < rct.bottom:  # 縦方向の判定
+        tate = False
+    return yoko, tate
+
 
 def main():
     pg.display.set_caption("逃げろ！こうかとん")  # ウィンドウタイトルを「逃げろ！こうかとん」
@@ -45,9 +58,17 @@ def main():
 
         screen.blit(bg_img, [0, 0])  # 背景画像をスクリーンSurfaceに貼り付ける
         kk_rct.move_ip(sum_mv[0], sum_mv[1])
+        if check_bound(kk_rct) != (True, True):
+            kk_rct.move_ip(-sum_mv[0], -sum_mv[1])
         screen.blit(kk_img, kk_rct)  # 練習３：こうかとんを移動させる
         screen.blit(kk_img, kk_rct)  # こうかとん画像をスクリーンSurfaceの横900，縦400に貼り付ける
         bb_rct.move_ip(vx, vy)  # 赤い円が移動
+        yoko, tate = check_bound(bb_rct)
+        if not yoko:  # 横がはみ出たら
+            vx *= -1
+        if not tate:  # 縦がはみ出たら
+            vy *= -1
+        
         screen.blit(bb_img, bb_rct)  # 赤い円を表示
         pg.display.update()  # 画面を更新する
         tmr += 1
