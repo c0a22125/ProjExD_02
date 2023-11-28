@@ -41,6 +41,12 @@ def main():
     bb_rct = bb_img.get_rect()  # 練習2:爆弾surfaceのRectを抽出
     bb_rct.centerx = random.randint(0, WIDTH)  # 座標の設定
     bb_rct.centery = random.randint(0, HEIGHT)
+    gg_img = pg.image.load("ex02/fig/6.png")  # ゲームオーバー時のこうかとんのSurfaceを生成
+    gg_img = pg.transform.rotozoom(gg_img, 0, 2.0)  # 2倍に拡大したSurfaceを生成
+    gg_rct = gg_img.get_rect()  # ゲームオーバー時のこうかとんSurfaceのRectを抽出する
+    gg_rct.center = 900, 400  # ゲームオーバー時のこうかとんの座標
+    fonto = pg.font.Font(None, 200)  # ゲームオーバーの文字を生成
+    txt = fonto.render("Game Over", True, (255, 0, 0))
     clock = pg.time.Clock()
     tmr = 0
     vx , vy = 5, 5
@@ -73,9 +79,19 @@ def main():
             if event.type == pg.QUIT: 
                 return
             
-#        if kk_rct.colliderect(bb_rct):
-#            print("Game Over")
-#            return
+        if kk_rct.colliderect(bb_rct):  # ゲームオーバーの処理
+            gg_rct.center = kk_rct.center  # ゲームオーバー時のこうかとんの座標を更新
+            txt_rect = txt.get_rect(center=(WIDTH // 2, HEIGHT // 2))
+            screen.blit(bg_img, [0, 0])  # 背景を表示
+            screen.blit(bb_img, bb_rct)  # 爆弾を表示
+            screen.blit(txt, txt_rect)  # Game Overを画面中央に表示
+            screen.blit(gg_img, gg_rct)  # ゲームオーバー時のこうかとんを表示
+            pg.display.update()
+            pg.time.delay(2000)
+            return
+            
+            
+
             
         key_lst = pg.key.get_pressed()
         sum_mv = [0, 0]
@@ -85,7 +101,7 @@ def main():
                 sum_mv[1] += tpl[1]
 
         screen.blit(bg_img, [0, 0])  # 背景画像をスクリーンSurfaceに貼り付ける
-        kk_rct.move_ip(sum_mv[0], sum_mv[1])
+        kk_rct.move_ip(sum_mv[0], sum_mv[1])  # こうかとんを移動
         if check_bound(kk_rct) != (True, True):
             kk_rct.move_ip(-sum_mv[0], -sum_mv[1])
         screen.blit(kk_imgs.get((sum_mv[0], sum_mv[1]), kk_img), kk_rct.topleft)  # 押したキーに応じて向きを変えて移動
