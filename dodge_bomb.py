@@ -12,6 +12,7 @@ delta = {  # 練習３：押下キーと移動量の辞書
     pg.K_RIGHT: (+5, 0)
 }
 
+
 def check_bound(rct: pg.Rect) -> tuple[bool, bool]:
     """
     オブジェクトが画面内or画面外を判定し、真理値タプルを返す関数
@@ -42,8 +43,20 @@ def main():
     bb_rct.centery = random.randint(0, HEIGHT)
     clock = pg.time.Clock()
     tmr = 0
-    vx = 5
-    vy = 5
+    vx, vy = 5, 5
+
+    # 各方向に対するこうかとんの画像を作成
+    kk_imgs = {
+        (0, -5): pg.transform.flip(pg.transform.rotozoom(kk_img, 90, 1.0), True,True ),  # 下向き
+        (0, 5): pg.transform.rotozoom(kk_img, 45, 1.0),   # 上向き
+        (-5, 0): pg.transform.rotozoom(kk_img, 0, 1.0),  # 右向き
+        (5, 0): pg.transform.flip(pg.transform.rotozoom(kk_img, 0, 1.0), True, False),  # 左向き
+        (-5, -5): pg.transform.rotozoom(kk_img, -45, 1.0),  # 右下斜め
+        (5, -5): pg.transform.flip(pg.transform.rotozoom(kk_img, -45, 1.0), True, False), # 左下斜め
+        (-5, 5): pg.transform.rotozoom(kk_img, 45, 1.0), # 右上斜め
+        (5, 5): pg.transform.flip(pg.transform.rotozoom(kk_img, 45, 1.0), True, False), # 左上斜め
+    }
+
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT: 
@@ -64,8 +77,7 @@ def main():
         kk_rct.move_ip(sum_mv[0], sum_mv[1])
         if check_bound(kk_rct) != (True, True):
             kk_rct.move_ip(-sum_mv[0], -sum_mv[1])
-        screen.blit(kk_img, kk_rct)  # 練習３：こうかとんを移動させる
-        screen.blit(kk_img, kk_rct)  # こうかとん画像をスクリーンSurfaceの横900，縦400に貼り付ける
+        screen.blit(kk_imgs.get((sum_mv[0], sum_mv[1]), kk_img), kk_rct.topleft)  # 押したキーに応じて向きを変えて移動
         bb_rct.move_ip(vx, vy)  # 赤い円が移動
         yoko, tate = check_bound(bb_rct)
         if not yoko:  # 横がはみ出たら
